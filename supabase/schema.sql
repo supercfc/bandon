@@ -23,3 +23,4 @@ create policy "Public can read orders" on public.orders for select to anon using
 create policy "Public can create orders" on public.orders for insert to anon with check (true);
 create policy "Public can read order items" on public.order_items for select to anon using (true);
 create policy "Public can add order items" on public.order_items for insert to anon with check (true);
+create policy "Public can update order items" on public.order_items for update to anon using (true) with check (true);
