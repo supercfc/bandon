@@ -2,6 +2,7 @@ create table public.orders (
   id uuid primary key default gen_random_uuid(),
   title text not null check (char_length(title) between 1 and 100),
   note text not null default '開放訂購中',
+  deadline_at timestamptz,
   created_at timestamptz not null default now()
 );
 
