@@ -19,3 +19,6 @@
 .item-edit:hover,.item-edit:focus { border-color:#b9cdc2; background:#f7faf5; outline:none; }
 .item-price { display:flex; align-items:center; justify-content:flex-end; min-width:0; color:#334a42; font-weight:700; }.item-price span { flex:none; font-size:12px; }.item-price .item-edit { width:68px; padding-left:2px; text-align:right; font-weight:700; }
 @media (max-width:760px) { .item-price .item-edit{width:48px;font-size:12px}.item-price span{font-size:10px} }
+/* Order deletion */
+.order-heading-actions { display:flex; align-items:flex-end; gap:14px; }.delete-order { border:1px solid #edc1b1; border-radius:8px; padding:8px 10px; background:#fff8f4; color:#b64f31; font-size:12px; font-weight:800; white-space:nowrap; }.delete-order:hover { background:#fff0e9; }.delete-submit { background:#b8482c; }.danger-modal h2 { padding-right:24px; }
+@media (max-width:760px) { .order-heading-actions{gap:8px}.delete-order{padding:7px 8px;font-size:11px} }
