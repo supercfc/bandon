@@ -94,8 +94,8 @@ export default function Home() {
     if (!activeOrder) return;
     setSaving(true);
     try {
-      const response = await fetch(`/api/orders/${activeOrder.id}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: deletePassword }) });
-      if (!response.ok) { const data = await response.json().catch(() => ({})); throw new Error(data.error || "無法刪除訂購單"); }
+      const deleted = await db<boolean>("rpc/delete_order_with_password", { method: "POST", body: JSON.stringify({ target_order_id: activeOrder.id, supplied_password: deletePassword }) });
+      if (!deleted) throw new Error("密碼不正確或訂購單不存在");
       setDeleteOpen(false); await loadOrders();
     } catch (error) { setDeleteError(error instanceof Error ? error.message : "無法刪除訂購單"); } finally { setSaving(false); }
   }
