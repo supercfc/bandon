@@ -11,7 +11,7 @@ create table public.order_items (
   order_id uuid not null references public.orders(id) on delete cascade,
   name text not null check (char_length(name) between 1 and 50),
   product text not null check (char_length(product) between 1 and 120),
-  price integer not null check (price > 0 and price <= 100000),
+  price integer not null check (price >= 0 and price <= 100000),
   paid_status text not null default '未繳' check (paid_status in ('已繳清', '未繳')),
   created_at timestamptz not null default now()
 );
