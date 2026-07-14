@@ -22,6 +22,12 @@ function deadlineText(value: string | null) {
   return value ? new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value)) + " 截止" : "開放訂購中";
 }
 function isClosed(value: string | null) { return Boolean(value && Date.now() >= new Date(value).getTime()); }
+const numericSpace = " ";
+function tableWidth(value: string) { return Array.from(value).reduce((width, character) => width + (/^[ -~]$/.test(character) || character === numericSpace ? 1 : 2), 0); }
+function padTableCell(value: string, width: number) {
+  const padding = Math.max(0, width - tableWidth(value));
+  return value + "　".repeat(Math.floor(padding / 2)) + (padding % 2 ? numericSpace : "");
+}
 
 export default function Home() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -68,12 +74,30 @@ export default function Home() {
     }
     return [...grouped.values()].sort((a, b) => a.product.localeCompare(b.product, "zh-TW") || a.price - b.price);
   }, [activeOrder]);
-  const summaryText = useMemo(() => activeOrder ? [
-    `${activeOrder.title} 統計表`,
-    "品項\t單價\t份數\t小計",
-    ...itemSummary.map((item) => `${item.product}\tNT$ ${item.price.toLocaleString("zh-TW")}\t${item.quantity}\tNT$ ${(item.price * item.quantity).toLocaleString("zh-TW")}`),
-    `合計\t\t${activeOrder.items.length} 份\tNT$ ${total.toLocaleString("zh-TW")}`,
-  ].join("\n") : "", [activeOrder, itemSummary, total]);
+  const summaryText = useMemo(() => {
+    if (!activeOrder) return "";
+    const rows = itemSummary.map((item) => ({
+      product: item.product,
+      price: `NT$ ${item.price.toLocaleString("zh-TW")}`,
+      quantity: String(item.quantity),
+      subtotal: `NT$ ${(item.price * item.quantity).toLocaleString("zh-TW")}`,
+    }));
+    const widths = {
+      product: Math.max(tableWidth("品項"), ...rows.map((row) => tableWidth(row.product))),
+      price: Math.max(tableWidth("單價"), ...rows.map((row) => tableWidth(row.price))),
+      quantity: Math.max(tableWidth("份數"), ...rows.map((row) => tableWidth(row.quantity))),
+      subtotal: Math.max(tableWidth("小計"), ...rows.map((row) => tableWidth(row.subtotal))),
+    };
+    const line = (product: string, price: string, quantity: string, subtotal: string) => [
+      padTableCell(product, widths.product), padTableCell(price, widths.price), padTableCell(quantity, widths.quantity), padTableCell(subtotal, widths.subtotal),
+    ].join("　　");
+    return [
+      `${activeOrder.title} 統計表`,
+      line("品項", "單價", "份數", "小計"),
+      ...rows.map((row) => line(row.product, row.price, row.quantity, row.subtotal)),
+      line("合計", "", `${activeOrder.items.length}份`, `NT$ ${total.toLocaleString("zh-TW")}`),
+    ].join("\n");
+  }, [activeOrder, itemSummary, total]);
 
   function openCreator() { setCreatorOpen(true); setCreatorStep("password"); setPassword(""); setTitle(""); setDeadline(""); setCreatorError(""); }
   function verifyPassword(event: FormEvent) {
